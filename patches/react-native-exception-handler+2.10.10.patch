@@ -1,0 +1,17 @@
+diff --git a/node_modules/react-native-exception-handler/.DS_Store b/node_modules/react-native-exception-handler/.DS_Store
+new file mode 100644
+index 0000000..b7fa5d4
+Binary files /dev/null and b/node_modules/react-native-exception-handler/.DS_Store differ
+diff --git a/node_modules/react-native-exception-handler/android/build.gradle b/node_modules/react-native-exception-handler/android/build.gradle
+index c1dca20..21596d5 100644
+--- a/node_modules/react-native-exception-handler/android/build.gradle
++++ b/node_modules/react-native-exception-handler/android/build.gradle
+@@ -1,7 +1,7 @@
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        mavenCentral()
+     }
+ 
+     dependencies {

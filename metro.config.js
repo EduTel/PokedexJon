@@ -1,4 +1,6 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { withRozenite } = require('@rozenite/metro');
+
 
 /**
  * Metro configuration
@@ -8,4 +10,7 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
  */
 const config = {};
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+module.exports = withRozenite(mergeConfig(getDefaultConfig(__dirname), config),
+  {
+    enabled: process.env.WITH_ROZENITE === 'true', // Rozenite is disabled by default
+  });
