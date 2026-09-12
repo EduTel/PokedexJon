@@ -73,8 +73,12 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
                 style={[styles.arrowButton, styles.leftArrow]}
                 onPress={() => scrollTo(activeImageIndex - 1)}
                 testID="slider-prev-button"
+                accessibilityRole="button"
+                accessibilityLabel="Ver imagen anterior"
+                accessibilityHint="Muestra la imagen anterior del Pokémon"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Text style={styles.arrowText}>‹</Text>
+                <Text style={styles.arrowText} aria-hidden={true}>‹</Text>
               </TouchableOpacity>
             )}
 
@@ -102,6 +106,7 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
                     style={styles.image}
                     resizeMode="contain"
                     testID={`pokemon-slide-image-${index}`}
+                    accessibilityLabel={`Imagen ${index + 1} de ${detail.name}`}
                   />
                 </View>
               ))}
@@ -112,12 +117,22 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
                 style={[styles.arrowButton, styles.rightArrow]}
                 onPress={() => scrollTo(activeImageIndex + 1)}
                 testID="slider-next-button"
+                accessibilityRole="button"
+                accessibilityLabel="Ver imagen siguiente"
+                accessibilityHint="Muestra la siguiente imagen del Pokémon"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Text style={styles.arrowText}>›</Text>
+                <Text style={styles.arrowText} aria-hidden={true}>›</Text>
               </TouchableOpacity>
             )}
 
-            <View style={styles.paginationDots} testID="pagination-dots">
+            <View
+              style={styles.paginationDots}
+              testID="pagination-dots"
+              accessible={true}
+              accessibilityRole="text"
+              accessibilityLabel={`Página ${activeImageIndex + 1} de ${images.length}`}
+            >
               {/*son solo dos imagenes no es necesario un flashlist*/}
               {images.map((_, index) => (
                 <View
@@ -141,42 +156,57 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
             style={styles.image}
             resizeMode="contain"
             testID="pokemon-detail-image"
+            accessibilityLabel={`Imagen de ${detail.name}`}
           />
         )}
 
-        <Text variant="headlineSmall" style={styles.name}>
+        <Text variant="headlineSmall" style={styles.name} accessibilityRole="header">
           {detail.name}
         </Text>
       </Card>
 
       <Card style={styles.sectionCard} mode="elevated" elevation={1}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>
+        <Text variant="titleMedium" style={styles.sectionTitle} accessibilityRole="header">
           Tipo
         </Text>
         <View style={styles.abilitiesContainer}>
           {/* son solo 2 tipos no es necesario un flashlist*/}
-          {detail.types.map(type => (
-            <Chip
-              key={type}
-              style={[
-                styles.typeChip,
-                { backgroundColor: getPokemonTypeColor(type) },
-              ]}
-              textStyle={styles.typeChipText}
-            >
-              {type}
-            </Chip>
-          ))}
+          {detail.types.map(type => {
+            const isLightType = ['electric', 'ice', 'ground', 'fairy'].includes(
+              type.toLowerCase(),
+            );
+            return (
+              <Chip
+                key={type}
+                style={[
+                  styles.typeChip,
+                  { backgroundColor: getPokemonTypeColor(type) },
+                ]}
+                textStyle={[
+                  styles.typeChipText,
+                  isLightType && { color: '#212121' },
+                ]}
+                accessibilityRole="text"
+                accessibilityLabel={`Tipo ${type}`}
+              >
+                {type}
+              </Chip>
+            );
+          })}
         </View>
       </Card>
 
       {/*(Peso y Altura) */}
       <Card style={styles.sectionCard} mode="elevated" elevation={1}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>
+        <Text variant="titleMedium" style={styles.sectionTitle} accessibilityRole="header">
           Características Físicas
         </Text>
         <View style={styles.measurementsRow}>
-          <View style={styles.measurementItem}>
+          <View
+            style={styles.measurementItem}
+            accessible={true}
+            accessibilityLabel={`Altura: ${heightInMeters} metros`}
+          >
             <Text variant="headlineSmall" style={styles.measurementValue}>
               {heightInMeters} m
             </Text>
@@ -185,7 +215,11 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
             </Text>
           </View>
           <Divider style={styles.divider} />
-          <View style={styles.measurementItem}>
+          <View
+            style={styles.measurementItem}
+            accessible={true}
+            accessibilityLabel={`Peso: ${weightInKg} kilogramos`}
+          >
             <Text variant="headlineSmall" style={styles.measurementValue}>
               {weightInKg} kg
             </Text>
@@ -198,7 +232,7 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
 
       {/* Tarjeta de Habilidades */}
       <Card style={styles.sectionCard} mode="elevated" elevation={1}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>
+        <Text variant="titleMedium" style={styles.sectionTitle} accessibilityRole="header">
           Habilidades
         </Text>
         <View style={styles.abilitiesContainer}>
@@ -211,6 +245,8 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
                 styles.abilityChip,
                 ability.isHidden && styles.hiddenAbilityChip,
               ]}
+              accessibilityRole="text"
+              accessibilityLabel={`Habilidad ${ability.name}${ability.isHidden ? ', oculta' : ''}`}
             >
               {ability.name} {ability.isHidden ? '(Oculta)' : ''}
             </Chip>
@@ -220,7 +256,7 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
 
       {/* Tarjeta de Estadísticas Base */}
       <Card style={styles.sectionCard}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>
+        <Text variant="titleMedium" style={styles.sectionTitle} accessibilityRole="header">
           Estadísticas Base
         </Text>
         {/*para solo 6 eleementos no es necesario un flashlist*/}

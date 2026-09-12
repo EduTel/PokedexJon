@@ -40,6 +40,9 @@ export const FallbackUI = ({ error, resetError }: FallbackUIProps) => {
           style={styles.button}
           activeOpacity={0.8}
           onPress={resetError}
+          accessibilityRole="button"
+          accessibilityLabel="Reintentar"
+          accessibilityHint="Reinicia la pantalla para intentar recuperarse del error"
         >
           <Text style={styles.buttonText}>REINTENTAR</Text>
         </TouchableOpacity>

@@ -13,8 +13,14 @@ export const ErrorState = ({
   onRetry,
 }: ErrorStateProps) => {
   return (
-    <View style={styles.container} testID="error-state">
-      <Text variant="titleMedium" style={styles.title}>
+    <View
+      style={styles.container}
+      testID="error-state"
+      accessible={true}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="assertive"
+    >
+      <Text variant="titleMedium" style={styles.title} accessibilityRole="header">
         ¡Ups! Algo salió mal
       </Text>
       <Text variant="bodyMedium" style={styles.message}>
@@ -27,6 +33,9 @@ export const ErrorState = ({
           style={styles.button}
           buttonColor={colors.primary}
           testID="retry-button"
+          accessibilityRole="button"
+          accessibilityLabel="Reintentar cargar información"
+          accessibilityHint="Vuelve a intentar cargar la información que falló"
         >
           Reintentar
         </Button>

@@ -5,7 +5,14 @@ import { colors } from '../theme/colors';
 
 export const OfflineBanner = () => {
   return (
-    <View style={styles.banner} testID="offline-banner">
+    <View
+      style={styles.banner}
+      testID="offline-banner"
+      accessible={true}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+      accessibilityLabel="Aviso: Modo sin conexión. Mostrando datos en caché local."
+    >
       <View style={styles.dot} />
       <Text variant="labelMedium" style={styles.text}>
         Modo sin conexión • Mostrando datos en caché local

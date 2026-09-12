@@ -18,6 +18,9 @@ export const PokemonCard = ({ pokemon, onPress }: PokemonCardProps) => {
       elevation={2}
       onPress={onPress}
       testID={`pokemon-card-${pokemon.id}`}
+      accessibilityRole="button"
+      accessibilityLabel={`${pokemon.name}, número ${formattedId}`}
+      accessibilityHint="Toca dos veces para ver los detalles de este Pokémon"
     >
       <View style={styles.content}>
         <View style={styles.imageContainer}>

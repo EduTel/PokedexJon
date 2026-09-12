@@ -29,7 +29,12 @@ export const StatBar = ({ name, value, maxValue = 255 }: StatBarProps) => {
   else if (value >= 50) statColor = colors.info;
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      accessible={true}
+      accessibilityRole="text"
+      accessibilityLabel={`Estadística ${displayName}: ${value} de ${maxValue}`}
+    >
       <View style={styles.labelContainer}>
         <Text variant="labelMedium" style={styles.name}>
           {displayName}

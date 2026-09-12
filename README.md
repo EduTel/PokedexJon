@@ -225,6 +225,21 @@ El proyecto implementa los principios de **Clean Architecture** e **Inversión d
 
 ---
 
+## ♿ Accesibilidad (A11y & WCAG)
+
+La interfaz cumple con los estándares de accesibilidad para lectores de pantalla (**TalkBack** en Android y **VoiceOver** en iOS) y pautas **WCAG 2.1**:
+
+1. **Soporte para Lectores de Pantalla**:
+   - **Etiquetas y Roles Semánticos**: Implementación de `accessibilityRole` (`"button"`, `"header"`, `"alert"`, `"text"`), `accessibilityLabel`, `accessibilityHint` y 'aria-hidden={true}' en tarjetas, botones de acción y encabezados.
+   - **Tarjetas de Pokémon**: Anuncian nombre, número y acción (*"Bulbasaur, número #001. Toca dos veces para ver los detalles"*).
+2. **Tamaños Táctiles Adecuados (Touch Target Size)**:
+   - Los controles interactivos cumplen con el tamaño táctil mínimo recomendado de **44x44 dp (iOS)** y **48x48 dp (Android)** mediante dimensionamiento nativo
+3. **Contraste de Color Dinámico (WCAG AAA / AA)**:
+   - Texto principal `#212121` sobre `#FFFFFF` con ratio de contraste **~16:1** (superando WCAG AAA).
+   - Adaptación dinámica en chips de tipos: tipos con fondo claro (*Eléctrico*, *Hada*, *Hielo*, *Tierra*)
+
+---
+
 se elimino libreria @react-native/new-app-screen que no aportaba nada al proyecto y ocupaba espacio y recursos.
 
 ## 📦 Justificación de Librerías y Ventajas Técnicas

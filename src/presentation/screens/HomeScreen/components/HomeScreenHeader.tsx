@@ -18,7 +18,7 @@ export const HomeScreenHeader = React.memo(
             </Badge>
           )}
         </View>
-        <Text variant="bodyMedium" style={styles.subtitle}>
+        <Text variant="bodyMedium" style={styles.subtitle} accessibilityRole="header">
           Todos los Pokemon
         </Text>
       </View>
