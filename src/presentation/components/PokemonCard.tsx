@@ -1,0 +1,81 @@
+import { StyleSheet, Image, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
+import { Pokemon } from '@/domain/models/pokemon.model';
+import { colors } from '@/presentation/theme/colors';
+
+interface PokemonCardProps {
+  pokemon: Pokemon;
+  onPress: () => void;
+}
+
+export const PokemonCard = ({ pokemon, onPress }: PokemonCardProps) => {
+  const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
+
+  return (
+    <Card
+      style={styles.card}
+      mode="elevated"
+      elevation={2}
+      onPress={onPress}
+      testID={`pokemon-card-${pokemon.id}`}
+    >
+      <View style={styles.content}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: pokemon.imageUrl }}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </View>
+        <View style={styles.info}>
+          <Text variant="labelSmall" style={styles.id}>
+            {formattedId}
+          </Text>
+          <Text variant="titleMedium" style={styles.name} numberOfLines={1}>
+            {pokemon.name}
+          </Text>
+        </View>
+      </View>
+    </Card>
+  );
+};
+
+const styles = StyleSheet.create({
+  card: {
+    marginVertical: 6,
+    marginHorizontal: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+  },
+  imageContainer: {
+    width: 74,
+    height: 74,
+    backgroundColor: colors.surfaceVariant,
+    borderRadius: 37,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  image: {
+    width: 64,
+    height: 64,
+  },
+  info: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  id: {
+    color: colors.textSecondary,
+    fontWeight: 'bold',
+  },
+  name: {
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: 2,
+  },
+});
