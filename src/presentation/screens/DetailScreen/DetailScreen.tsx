@@ -1,12 +1,5 @@
-import React, { useState, useRef } from 'react';
-import {
-  View,
-  ScrollView,
-  ScrollViewInstance,
-  Image,
-  TouchableOpacity,
-  useWindowDimensions,
-} from 'react-native';
+import React from 'react';
+import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { Text, Chip, Card, Divider } from 'react-native-paper';
 import { DetailScreenProps } from '@core/types/navigation.types';
 import { getPokemonTypeColor } from '@core/enums/pokemon-type.enum';
@@ -14,6 +7,7 @@ import { usePokemonDetail } from '@hooks/usePokemonDetail';
 import { LoadingState } from '@components/LoadingState';
 import { ErrorState } from '@components/ErrorState';
 import { StatBar } from '@components/StatBar';
+import { PokemonImageSlider } from './components/PokemonImageSlider';
 import { styles } from './DetailScreen.styles';
 
 export const DetailScreen = ({ route }: DetailScreenProps) => {
@@ -21,8 +15,6 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
   const { width } = useWindowDimensions();
   // ancho de pantalla menos padding horizontal
   const slideWidth = width - 72;
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const scrollViewRef = useRef<ScrollViewInstance>(null);
 
   const { detail, isLoading, isError, errorMessage, reload } = usePokemonDetail(
     pokemonId || pokemonName,
@@ -51,11 +43,6 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
       ? detail.images
       : [detail.imageUrl];
 
-  const scrollTo = (index: number) => {
-    scrollViewRef.current?.scrollTo({ x: index * slideWidth, animated: true });
-    setActiveImageIndex(index);
-  };
-
   return (
     <ScrollView
       style={styles.container}
@@ -66,99 +53,11 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
           {formattedId}
         </Text>
 
-        {images.length > 1 ? (
-          <View style={styles.sliderContainer} testID="pokemon-image-slider">
-            {activeImageIndex > 0 && (
-              <TouchableOpacity
-                style={[styles.arrowButton, styles.leftArrow]}
-                onPress={() => scrollTo(activeImageIndex - 1)}
-                testID="slider-prev-button"
-                accessibilityRole="button"
-                accessibilityLabel="Ver imagen anterior"
-                accessibilityHint="Muestra la imagen anterior del Pokémon"
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Text style={styles.arrowText} aria-hidden={true}>‹</Text>
-              </TouchableOpacity>
-            )}
-
-            <ScrollView
-              ref={scrollViewRef}
-              horizontal
-              pagingEnabled
-              nestedScrollEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              onScroll={event => {
-                const offsetX = event.nativeEvent.contentOffset.x;
-                const index = Math.round(offsetX / slideWidth);
-                setActiveImageIndex(index);
-              }}
-              scrollEventThrottle={16}
-            >
-              {/*son solo dos imagenes no es necesario un flashlist*/}
-              {images.map((imgUri, index) => (
-                <View
-                  key={`${imgUri}-${index}`}
-                  style={[styles.slideItem, { width: slideWidth }]}
-                >
-                  <Image
-                    source={{ uri: imgUri }}
-                    style={styles.image}
-                    resizeMode="contain"
-                    testID={`pokemon-slide-image-${index}`}
-                    accessibilityLabel={`Imagen ${index + 1} de ${detail.name}`}
-                  />
-                </View>
-              ))}
-            </ScrollView>
-
-            {activeImageIndex < images.length - 1 && (
-              <TouchableOpacity
-                style={[styles.arrowButton, styles.rightArrow]}
-                onPress={() => scrollTo(activeImageIndex + 1)}
-                testID="slider-next-button"
-                accessibilityRole="button"
-                accessibilityLabel="Ver imagen siguiente"
-                accessibilityHint="Muestra la siguiente imagen del Pokémon"
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Text style={styles.arrowText} aria-hidden={true}>›</Text>
-              </TouchableOpacity>
-            )}
-
-            <View
-              style={styles.paginationDots}
-              testID="pagination-dots"
-              accessible={true}
-              accessibilityRole="text"
-              accessibilityLabel={`Página ${activeImageIndex + 1} de ${images.length}`}
-            >
-              {/*son solo dos imagenes no es necesario un flashlist*/}
-              {images.map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.dot,
-                    activeImageIndex === index
-                      ? styles.activeDot
-                      : styles.inactiveDot,
-                  ]}
-                  testID={
-                    activeImageIndex === index ? 'active-dot' : 'inactive-dot'
-                  }
-                />
-              ))}
-            </View>
-          </View>
-        ) : (
-          <Image
-            source={{ uri: images[0] }}
-            style={styles.image}
-            resizeMode="contain"
-            testID="pokemon-detail-image"
-            accessibilityLabel={`Imagen de ${detail.name}`}
-          />
-        )}
+        <PokemonImageSlider
+          images={images}
+          pokemonName={detail.name}
+          slideWidth={slideWidth}
+        />
 
         <Text variant="headlineSmall" style={styles.name} accessibilityRole="header">
           {detail.name}

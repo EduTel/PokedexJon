@@ -18,7 +18,8 @@ const STAT_NAMES: Record<string, string> = {
   speed: 'Velocidad',
 };
 
-export const StatBar = ({ name, value, maxValue = 255 }: StatBarProps) => {
+export const StatBar = React.memo(
+  ({ name, value, maxValue = 255 }: StatBarProps) => {
   const displayName = STAT_NAMES[name.toLowerCase()] || name.toUpperCase();
   const progress = Math.min(Math.max(value / maxValue, 0), 1);
 
@@ -50,7 +51,7 @@ export const StatBar = ({ name, value, maxValue = 255 }: StatBarProps) => {
       />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

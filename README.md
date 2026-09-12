@@ -30,11 +30,15 @@ Aplicación móvil de Pokédex construida con **React Native (0.87.1)** y **Reac
 | :---: | :---: |
 | <img src="./img-doc/android/Error-HomeScreen-android.png" width="280" alt="Error State" /> | <img src="./img-doc/android/Empty-HomeScreen-android.png" width="280" alt="Empty State" /> |
 
-### 🔍 Evidencias de Depuración con Rozenite DevTools
+### 🔍 Evidencias de Depuración y Rendimiento (DevTools & Profiler)
 
 | Árbol de Navegación (`React Navigation`) | Inspección de Caché y Persistencia (`MMKV Storage`) |
 | :---: | :---: |
 | <img src="./img-doc/stackNavigator.png" width="380" alt="Rozenite React Navigation Tree" /> | <video src="./img-doc/storageMmkv.mp4" width="380" controls></video><br/>[▶️ Ver video de persistencia (`storageMmkv.mp4`)](./img-doc/storageMmkv.mp4) |
+
+| Perfilado de Rendimiento y Prevención de Re-renderizados (`React DevTools Profiler`) |
+| :---: |
+| <video src="./img-doc/profile-detail.mp4" width="600" controls></video><br/>[▶️ Ver video de perfilado en DetailScreen (`profile-detail.mp4`)](./img-doc/profile-detail.mp4)<br/>*Demostración mediante el Flamegraph del Profiler: al cambiar entre las imágenes del carrusel en `DetailScreen`, gracias a la técnica de **State Colocation** y modularización (`PokemonImageSlider`), los componentes inferiores (Tipos, Características Físicas, Habilidades y Estadísticas Base) no se re-renderizan («Did not render»), eliminando renders innecesarios y optimizando el rendimiento.* |
 
 ---
 
@@ -350,3 +354,48 @@ A continuación se detalla por qué se eligió cada librería y el valor técnic
 - **Evidencias en el proyecto**:
   - **React Navigation**: Inspección del historial de rutas y stack de navegación ([`img-doc/stackNavigator.png`](./img-doc/stackNavigator.png)).
   - **Storage Plugin**: Monitoreo reactivo de la base de datos MMKV (`pokedex-storage`) ([`img-doc/storageMmkv.mp4`](./img-doc/storageMmkv.mp4)).
+  - **React DevTools Profiler**: Análisis de commits y verificación de 0 re-renderizados innecesarios en `DetailScreen` al cambiar de imagen ([`img-doc/profile-detail.mp4`](./img-doc/profile-detail.mp4)).
+
+---
+
+## ⚖️ Trade-offs Técnicos y Decisiones de Arquitectura
+
+Toda decisión de ingeniería de software implica evaluar beneficios frente a compromisos asumidos (*trade-offs*). A continuación se documentan las decisiones clave tomadas en el proyecto:
+
+| Decisión Técnica | Ventajas Obtenidas | Compromiso / Trade-off Asumido |
+| :--- | :--- | :--- |
+| **`MMKV` vs `SQLite / WatermelonDB`** | Lectura/escritura síncrona ultra rápida vía C++/JSI (~30x más veloz que AsyncStorage), perfecta integración con serialización JSON de `@tanstack/react-query`. | No cuenta con motor de consultas relacionales (SQL) ni indexación compleja para búsquedas relacionales masivas. Si el modelo de datos requiriera relaciones complejas multi-tabla, se requeriría migrar a SQLite/WatermelonDB. |
+| **`LegendList` vs `FlatList` / `FlashList`** | Reciclaje de vistas 100% en JavaScript sin necesidad de compilar módulos nativos adicionales, eliminando parpadeos y garantizando 60/120 FPS fluidos. | Es una librería más reciente en el ecosistema, requiriendo validación exhaustiva de estabilidad con React 19 y configuraciones cuidadosas en el cálculo de tamaños dinámicos de ítems. |
+| **Clean Architecture y Abstracción de Red (`IHttpClient`)** | Desacoplamiento estricto entre capas (`Domain`, `Data`, `Presentation`). Testeabilidad al 100% con mocks en Jest y facilidad para intercambiar `fetch` por `axios` sin tocar la UI ni la lógica de negocio. | Incrementa el número de archivos, interfaces y *boilerplate* inicial en comparación con consumir APIs directamente dentro de componentes o hooks de React. |
+| **Inversión de Dependencias (DIP) en Librerías Externas** | Se aplicó DIP rigurosamente en la capa de red crítica con `IHttpClient` (`FetchHttpClient`), aislando el consumo de APIs y garantizando 100% de testeabilidad. | Librerías utilitarias como `@react-native-community/netinfo` se consumen a través de hooks estándar (`useNetInfo`) sin una interfaz abstracta intermedia (`INetworkService`). Esto evitó sobre-ingeniería inicial para el alcance actual, asumiendo un acoplamiento directo que podría desacoplarse en una siguiente fase de arquitectura. |
+| **React Compiler vs State Colocation Manual** | `babel-plugin-react-compiler` automatiza la memorización de componentes y valores calculados sin ensuciar el código con `useMemo` y `useCallback` manuales. | Para interacciones de UI críticas de alta frecuencia (como el carrusel de imágenes en `DetailScreen`), el compilador no previene re-renders si el estado reside en el contenedor padre. Se requirió aplicar deliberadamente **State Colocation** (`PokemonImageSlider`) para aislar el estado y lograr 0 re-renderizados en los componentes inferiores. |
+| **Estrategia Offline-First (Caché TanStack Query + MMKV)** | Navegación instantánea sin bloqueos de red; el usuario siempre visualiza datos previamente consultados aun en modo avión. | Si la información remota de la PokeAPI cambia mientras el dispositivo está desconectado, el usuario ve datos cacheados (*stale*) hasta que se restablece la conexión y se dispara la revalidación en segundo plano. |
+
+---
+
+## 🔮 Pendientes y Mejoras Futuras (Roadmap)
+
+Propuestas de valor y características planificadas para evolucionar el producto en siguientes iteraciones:
+
+1. **Abstracción e Inversión de Dependencias en Servicios Externos (DIP)**:
+   - **Servicio de Conectividad (`INetworkConnectivityService`)**: Crear una interfaz abstracta para encapsular `@react-native-community/netinfo`. Esto desacopla los componentes y hooks de la librería concreta, permitiendo sustituir el proveedor de conectividad, simular caídas de red en tests de forma transparente o añadir comprobaciones activas de *ping* a servidores sin alterar la UI.
+   - **Servicio de Persistencia Clave-Valor (`IStorageService`)**: Abstraer `react-native-mmkv` detrás de un puerto de almacenamiento genérico para desacoplar completamente la capa de persistencia de implementaciones nativas específicas.
+   - **Servicio de Telemetría y Crash Reporting (`ICrashReporterService`)**: Encapsular `react-native-exception-handler` e integrar servicios de observabilidad en producción como Sentry, Datadog o Firebase Crashlytics mediante inyección de dependencias.
+
+2. **Línea Evolutiva Completa (`Evolution Chain`)**:
+   - Consumir el endpoint `/evolution-chain` de la PokéAPI para mostrar un flujo visual interactivo de las etapas de evolución y requisitos de nivel o ítems en `DetailScreen`.
+
+3. **Transiciones Compartidas (*Shared Element Transitions*)**:
+   - Integrar `react-native-reanimated` con animaciones compartidas de la imagen del Pokémon entre la tarjeta de `HomeScreen` y el encabezado de `DetailScreen` para elevar la fluidez visual a nivel de aplicaciones nativas premium.
+
+4. **Gritos y Efectos de Sonido (`Pokémon Cries`)**:
+   - Integrar un reproductor de audio nativo (`react-native-track-player` o `expo-av`) para reproducir los audios de los *cries* oficiales que expone la PokéAPI v2.
+
+5. **Filtros Avanzados y Búsqueda Reactiva**:
+   - Incorporar filtrado multidimensional (por tipo de Pokémon, generación, rango de estadísticas base) y búsqueda reactiva con *debounce* integrado directamente en la cabecera.
+
+6. **Sistema de Favoritos y Colección Offline**:
+   - Permitir al usuario marcar Pokémon favoritos con persistencia en una partición dedicada de `MMKV`, visualizables en una pestaña o filtro dedicado disponible 100% offline.
+
+7. **Soporte Dinámico de Temas (Modo Oscuro / Claro)**:
+   - Extender la configuración de `react-native-paper` para alternar entre tema oscuro (*Dark Mode*) y claro según la preferencia del sistema o selección manual del usuario.
