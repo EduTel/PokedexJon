@@ -10,6 +10,12 @@ Aplicación móvil de Pokédex construida con **React Native (0.87.1)** y **Reac
 | :---: | :---: |
 | <img src="./img-doc/fastloadimages.gif" width="300" alt="Scroll ultra rápido y carga inmediata de imágenes" /><br/>*Listado de Pokémon con **LegendList**: desplazamiento a 60/120 FPS sin bloqueos y carga prácticamente inmediata de imágenes optimizadas.* | <img src="./img-doc/app_icon.png" width="300" alt="Ícono de la aplicación en el launcher" /><br/>*Ícono personalizado de la Pokédex instalado en el launcher del dispositivo.* |
 
+### 🌐 Auditoría de Red en Tiempo Real (`Android Studio Network Inspector`)
+
+| 📡 Inspección de Tráfico Nativo de Imágenes (`wsrv.nl` Image CDN) |
+| :---: |
+| <img src="./img-doc/fastloadimages-networkinspector.gif" width="700" alt="Inspección de red en Android Studio Network Inspector" /><br/>*Auditoría con el **Network Inspector** de Android Studio: captura en vivo del tráfico HTTP nativo (OkHttp/Fresco) durante el scroll rápido, demostrando la descarga inmediata de imágenes optimizadas en formato WebP desde el CDN `wsrv.nl`, respuestas `200 OK`, bajo peso de transferencia y previsualización de cada sprite descargado.*<br/> |
+
 ---
 
 ## 📸 Capturas de Pantalla (Screenshots)
