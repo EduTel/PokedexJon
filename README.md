@@ -40,6 +40,10 @@ Aplicación móvil de Pokédex construida con **React Native (0.87.1)** y **Reac
 | :---: |
 | <video src="./img-doc/profile-detail.mp4" width="600" controls></video><br/>[▶️ Ver video de perfilado en DetailScreen (`profile-detail.mp4`)](./img-doc/profile-detail.mp4)<br/>*Demostración mediante el Flamegraph del Profiler: al cambiar entre las imágenes del carrusel en `DetailScreen`, gracias a la técnica de **State Colocation** y modularización (`PokemonImageSlider`), los componentes inferiores (Tipos, Características Físicas, Habilidades y Estadísticas Base) no se re-renderizan («Did not render»), eliminando renders innecesarios y optimizando el rendimiento.* |
 
+| Inspección y Auditoría de Accesibilidad en iOS (`Xcode Accessibility Inspector` & `VoiceOver`) |
+| :---: |
+| <video src="./img-doc/accessibility.mov" width="600" controls></video><br/>[▶️ Ver video de accesibilidad (`accessibility.mov`)](./img-doc/accessibility.mov)<br/>*Validación en vivo con **Accessibility Inspector** de Xcode: inspección de elementos accesibles en el simulador de iOS, confirmando el mapeo de **Basic** (`Label`, `Type`, `Identifier`) y **Advanced** (`Help`) para una navegación asistiva fluida con VoiceOver.* |
+
 ---
 
 ## 🚀 Guía de Inicio Rápido
@@ -231,16 +235,42 @@ El proyecto implementa los principios de **Clean Architecture** e **Inversión d
 
 ## ♿ Accesibilidad (A11y & WCAG)
 
-La interfaz cumple con los estándares de accesibilidad para lectores de pantalla (**TalkBack** en Android y **VoiceOver** en iOS) y pautas **WCAG 2.1**:
+La interfaz cumple rigurosamente con los estándares de accesibilidad móvil para lectores de pantalla (**VoiceOver** en iOS y **TalkBack** en Android) bajo directrices **WCAG 2.1 (Nivel AA y AAA)**:
 
 1. **Soporte para Lectores de Pantalla**:
-   - **Etiquetas y Roles Semánticos**: Implementación de `accessibilityRole` (`"button"`, `"header"`, `"alert"`, `"text"`), `accessibilityLabel`, `accessibilityHint` y 'aria-hidden={true}' en tarjetas, botones de acción y encabezados.
-   - **Tarjetas de Pokémon**: Anuncian nombre, número y acción (*"Bulbasaur, número #001. Toca dos veces para ver los detalles"*).
+   - **Etiquetas y Roles Semánticos**: Implementación exhaustiva de `accessibilityRole` (`"button"`, `"header"`, `"alert"`, `"image"`), `accessibilityLabel`, `accessibilityHint` y `aria-hidden={true}` en tarjetas, botones de acción, carrusel y encabezados.
+   - **Tarjetas de Pokémon**: Unificadas semánticamente para anunciar nombre, número identificador y la pista de acción interactiva (*"Bulbasaur, número #001. Toca dos veces para ver los detalles de este Pokémon"*).
 2. **Tamaños Táctiles Adecuados (Touch Target Size)**:
-   - Los controles interactivos cumplen con el tamaño táctil mínimo recomendado de **44x44 dp (iOS)** y **48x48 dp (Android)** mediante dimensionamiento nativo
+   - Los controles interactivos y botones de navegación cumplen con el tamaño táctil mínimo recomendado de **44×44 dp (iOS)** y **48×48 dp (Android)** mediante dimensionamiento nativo.
 3. **Contraste de Color Dinámico (WCAG AAA / AA)**:
-   - Texto principal `#212121` sobre `#FFFFFF` con ratio de contraste **~16:1** (superando WCAG AAA).
-   - Adaptación dinámica en chips de tipos: tipos con fondo claro (*Eléctrico*, *Hada*, *Hielo*, *Tierra*)
+   - Texto principal `#212121` sobre fondo blanco `#FFFFFF` con un ratio de contraste de **~16:1** (superando con holgura WCAG AAA).
+   - Adaptación dinámica de contraste en chips de tipos: tipos con fondo claro (*Eléctrico*, *Hada*, *Hielo*, *Tierra*) ajustan automáticamente el color del texto para garantizar legibilidad.
+
+### 🔬 Inspección y Auditoría con Xcode Accessibility Inspector
+
+Para garantizar que el motor de accesibilidad nativo de iOS (`UIAccessibility`) y el lector de pantalla **VoiceOver** reconozcan con total fidelidad cada componente interactivo, se utilizó la herramienta oficial de Apple: **Xcode Accessibility Inspector** (abierto mediante terminal con `open -a "Accessibility Inspector"` o desde *Xcode > Open Developer Tool > Accessibility Inspector*).
+
+#### 📋 Mapeo de Propiedades React Native ➔ Paneles del Inspector
+
+A través de la inspección interactiva con el cursor sobre la tarjeta ([`PokemonCard.tsx`](./src/presentation/components/PokemonCard.tsx)), se valida el mapeo exacto entre las APIs de accesibilidad de React Native y la jerarquía nativa de iOS:
+
+| Panel en Inspector | Campo Nativo Inspector | Propiedad en React Native | Valor / Ejemplo en Pokédex | Función y Comportamiento con VoiceOver |
+| :--- | :--- | :--- | :--- | :--- |
+| **`Basic`** | **`Label`** | `accessibilityLabel` | `"Bulbasaur, número #001"` | Es el texto principal sintetizado por voz al enfocar el elemento. Informa claramente el contenido sin depender de lo visual. |
+| **`Basic`** | **`Type`** | `accessibilityRole` | `"button"` | Comunica al usuario la naturaleza del elemento (anuncia *"botón"* al final). |
+| **`Basic`** | **`Identifier`** | `testID` | `"pokemon-card-1"` | Identificador único utilizado por pruebas automatizadas (E2E) y herramientas de accesibilidad. |
+| **`Basic`** | **`Value`** | `accessibilityValue` | *(Opcional / N/A)* | Describe el valor actual en componentes como sliders o switches. |
+| **`Advanced`** | **`Help`** | `accessibilityHint` | `"Toca dos veces para ver los detalles de este Pokémon"` | **En Apple UIAccessibility, el hint se expone como `Help`**. Provee instrucciones al usuario sobre el resultado de accionar el elemento tras una breve pausa. |
+| **`Actions`** | **`press`** | `onPress` | `handlePress` (`Perform`) | Permite accionar el elemento mediante doble toque o a través del botón *Perform Action* del inspector. |
+
+> 💡 **Nota Técnica sobre React Native Paper (`<Card>` vs `<Pressable>`)**:  
+> Al pasar `onPress` directamente al componente `<Card>` de React Native Paper, la librería genera un contenedor interno que no propaga `accessibilityLabel` ni `accessibilityHint` al nodo accesible nativo, provocando que VoiceOver inspeccionara los textos hijos por separado.  
+> La solución implementada en [`PokemonCard.tsx`](./src/presentation/components/PokemonCard.tsx) consistió en utilizar un `<Pressable accessible={true} accessibilityRole="button" ...>` explícito envolviendo el contenido de la tarjeta. Esto unifica toda la celda en un único elemento accesible de alto nivel, garantizando que tanto `Label` como `Help` (Hint) se reconozcan correctamente.
+
+#### 🎥 Video Demostrativo de Auditoría A11y
+
+<video src="./img-doc/accessibility.mov" width="600" controls></video><br/>
+[▶️ Ver video demostrativo de inspección con Accessibility Inspector (`accessibility.mov`)](./img-doc/accessibility.mov)
 
 ---
 

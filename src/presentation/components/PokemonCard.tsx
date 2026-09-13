@@ -1,4 +1,4 @@
-import { StyleSheet, Image, View } from 'react-native';
+import { StyleSheet, Image, View, Pressable } from 'react-native';
 import { Card, Text, Icon } from 'react-native-paper';
 import { Pokemon } from '@/domain/models/pokemon.model';
 import { colors } from '@/presentation/theme/colors';
@@ -14,6 +14,8 @@ export const POKEMON_CARD_HEIGHT = 110;
 export const PokemonCard = React.memo(
   ({ pokemon, onPress }: PokemonCardProps) => {
     const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
+    const capitalizedName =
+      pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
     const [hasImageError, setHasImageError] = useState(false);
 
     const hasFailed = !pokemon.imageUrl || hasImageError;
@@ -23,17 +25,19 @@ export const PokemonCard = React.memo(
     };
 
     return (
-      <Card
-        style={styles.card}
-        mode="elevated"
-        elevation={2}
-        onPress={handlePress}
-        testID={`pokemon-card-${pokemon.id}`}
-        accessibilityRole="button"
-        accessibilityLabel={`${pokemon.name}, número ${formattedId}`}
-        accessibilityHint="Toca dos veces para ver los detalles de este Pokémon"
-      >
-        <View style={styles.content}>
+      <Card style={styles.card} mode="elevated" elevation={2}>
+        <Pressable
+          onPress={handlePress}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={`${capitalizedName}, número ${formattedId}`}
+          accessibilityHint="Toca dos veces para ver los detalles de este Pokémon"
+          testID={`pokemon-card-${pokemon.id}`}
+          style={({ pressed }) => [
+            styles.content,
+            pressed && styles.cardPressed,
+          ]}
+        >
           <View style={styles.imageContainer}>
             {!hasFailed ? (
               <Image
@@ -44,11 +48,7 @@ export const PokemonCard = React.memo(
                 onError={() => setHasImageError(true)}
               />
             ) : (
-              <Icon
-                source="pokeball"
-                size={38}
-                color={colors.textSecondary}
-              />
+              <Icon source="pokeball" size={38} color={colors.textSecondary} />
             )}
           </View>
           <View style={styles.info}>
@@ -56,10 +56,10 @@ export const PokemonCard = React.memo(
               {formattedId}
             </Text>
             <Text variant="titleMedium" style={styles.name} numberOfLines={1}>
-              {pokemon.name}
+              {capitalizedName}
             </Text>
           </View>
-        </View>
+        </Pressable>
       </Card>
     );
   },
@@ -71,6 +71,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     backgroundColor: colors.surface,
     borderRadius: 12,
+    overflow: 'hidden',
+  },
+  cardPressed: {
+    opacity: 0.7,
   },
   content: {
     flexDirection: 'row',
