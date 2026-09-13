@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Chip, Card, Divider } from 'react-native-paper';
 import { DetailScreenProps } from '@core/types/navigation.types';
 import { getPokemonTypeColor } from '@core/enums/pokemon-type.enum';
@@ -13,6 +14,7 @@ import { colors } from '@/presentation/theme/colors';
 
 export const DetailScreen = ({ route }: DetailScreenProps) => {
   const { pokemonId, pokemonName } = route.params;
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   // ancho de pantalla menos padding horizontal
   const slideWidth = width - 72;
@@ -47,7 +49,10 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: Math.max(32, insets.bottom + 24) },
+      ]}
     >
       <Card style={styles.headerCard} mode="elevated" elevation={2}>
         <Text variant="labelLarge" style={styles.id}>
