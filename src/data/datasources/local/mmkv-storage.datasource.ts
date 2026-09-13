@@ -53,10 +53,6 @@ export class MMKVStorageDataSource {
     try {
       const key = `${STORAGE_KEYS.POKEMON_DETAIL_PREFIX}${detail.id}`;
       this.mmkv.set(key, JSON.stringify(detail));
-      this.mmkv.set(
-        `${STORAGE_KEYS.POKEMON_DETAIL_PREFIX}${detail.name.toLowerCase()}`,
-        JSON.stringify(detail),
-      );
     } catch (error) {
       console.warn(
         `Error al guardar detalle de Pokémon #${detail.id} en MMKV:`,
@@ -65,19 +61,14 @@ export class MMKVStorageDataSource {
     }
   }
 
-  getPokemonDetail(idOrName: number | string): PokemonDetail | null {
+  getPokemonDetail(id: number): PokemonDetail | null {
     try {
-      const key = `${STORAGE_KEYS.POKEMON_DETAIL_PREFIX}${String(
-        idOrName,
-      ).toLowerCase()}`;
+      const key = `${STORAGE_KEYS.POKEMON_DETAIL_PREFIX}${id}`;
       const data = this.mmkv.getString(key);
       if (!data) return null;
       return JSON.parse(data) as PokemonDetail;
     } catch (error) {
-      console.warn(
-        `Error al leer detalle de Pokémon ${idOrName} de MMKV:`,
-        error,
-      );
+      console.warn(`Error al leer detalle de Pokémon #${id} de MMKV:`, error);
       return null;
     }
   }

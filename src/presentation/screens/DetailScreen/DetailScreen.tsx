@@ -9,6 +9,7 @@ import { ErrorState } from '@components/ErrorState';
 import { StatBar } from '@components/StatBar';
 import { PokemonImageSlider } from './components/PokemonImageSlider';
 import { styles } from './DetailScreen.styles';
+import { colors } from '@/presentation/theme/colors';
 
 export const DetailScreen = ({ route }: DetailScreenProps) => {
   const { pokemonId, pokemonName } = route.params;
@@ -17,7 +18,7 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
   const slideWidth = width - 72;
 
   const { detail, isLoading, isError, errorMessage, reload } = usePokemonDetail(
-    pokemonId || pokemonName,
+    pokemonId,
   );
 
   if (isLoading) {
@@ -83,7 +84,7 @@ export const DetailScreen = ({ route }: DetailScreenProps) => {
                 ]}
                 textStyle={[
                   styles.typeChipText,
-                  isLightType && { color: '#212121' },
+                  isLightType && { color: colors.text },
                 ]}
                 accessibilityRole="text"
                 accessibilityLabel={`Tipo ${type}`}

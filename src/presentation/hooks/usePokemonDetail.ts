@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useContextApiServices } from '../../di/context';
 
-export const usePokemonDetail = (idOrName: number | string) => {
+export const usePokemonDetail = (id: number) => {
   const { getPokemonDetailUseCase } = useContextApiServices();
 
   const {
@@ -11,9 +11,9 @@ export const usePokemonDetail = (idOrName: number | string) => {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['pokemonDetail', idOrName],
-    queryFn: () => getPokemonDetailUseCase.execute(idOrName),
-    enabled: Boolean(idOrName),
+    queryKey: ['pokemonDetail', id],
+    queryFn: () => getPokemonDetailUseCase.execute(id),
+    enabled: Boolean(id && id > 0),
   });
 
   return {

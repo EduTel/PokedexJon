@@ -31,12 +31,9 @@ export class PokeApiDataSource {
     }
   }
 
-  async fetchPokemonDetail(
-    idOrName: number | string,
-  ): Promise<PokemonDetailResponseDto> {
+  async fetchPokemonDetail(id: number): Promise<PokemonDetailResponseDto> {
     try {
-      const query = String(idOrName).toLowerCase().trim();
-      const response = await fetch(`${this.baseUrl}/pokemon/${query}`);
+      const response = await fetch(`${this.baseUrl}/pokemon/${id}`);
       if (!response.ok) {
         throw new Error(
           `Error en la PokéAPI: ${response.status} ${response.statusText}`,

@@ -57,16 +57,16 @@ export class PokemonRepositoryImpl implements IPokemonRepository {
     }
   }
 
-  async getPokemonDetail(idOrName: number | string): Promise<PokemonDetail> {
+  async getPokemonDetail(id: number): Promise<PokemonDetail> {
     try {
-      const response = await this.remoteDataSource.fetchPokemonDetail(idOrName);
+      const response = await this.remoteDataSource.fetchPokemonDetail(id);
       const domainDetail = PokemonMapper.detailToDomain(response);
 
       this.localDataSource.savePokemonDetail(domainDetail);
 
       return domainDetail;
     } catch (networkError) {
-      const cachedDetail = this.localDataSource.getPokemonDetail(idOrName);
+      const cachedDetail = this.localDataSource.getPokemonDetail(id);
       if (cachedDetail) {
         return cachedDetail;
       }

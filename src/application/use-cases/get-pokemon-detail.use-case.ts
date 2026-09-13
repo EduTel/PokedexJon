@@ -4,10 +4,10 @@ import { PokemonDetail } from '../../domain/models/pokemon-detail.model';
 export class GetPokemonDetailUseCase {
   constructor(private readonly pokemonRepository: IPokemonRepository) {}
 
-  async execute(idOrName: number | string): Promise<PokemonDetail> {
-    if (!idOrName) {
-      throw new Error('Se requiere un ID o nombre de Pokémon válido');
+  async execute(id: number): Promise<PokemonDetail> {
+    if (!id || id <= 0) {
+      throw new Error('Se requiere un ID de Pokémon válido mayor a 0');
     }
-    return this.pokemonRepository.getPokemonDetail(idOrName);
+    return this.pokemonRepository.getPokemonDetail(id);
   }
 }

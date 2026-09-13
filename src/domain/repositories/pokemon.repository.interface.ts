@@ -8,5 +8,5 @@ export interface PokemonListResult {
 
 export interface IPokemonRepository {
   getPokemonList(limit?: number, offset?: number): Promise<PokemonListResult>;
-  getPokemonDetail(idOrName: number | string): Promise<PokemonDetail>;
+  getPokemonDetail(id: number): Promise<PokemonDetail>;
 }
