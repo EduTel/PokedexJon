@@ -44,6 +44,10 @@ Aplicación móvil de Pokédex construida con **React Native (0.87.1)** y **Reac
 | :---: | :---: |
 | <img src="./img-doc/android/Error-HomeScreen-android.png" width="280" alt="Error State" /> | <img src="./img-doc/android/Empty-HomeScreen-android.png" width="280" alt="Empty State" /> |
 
+| Error Inesperado / Recuperación de Crash (`ErrorBoundary` & `FallbackUI`) |
+| :---: |
+| <img src="./img-doc/bundle.png" width="280" alt="ErrorBoundary FallbackUI State" /><br/>*Pantalla de recuperación ante fallos imprevistos ([`FallbackUI.tsx`](./src/presentation/components/FallbackUI.tsx)): captura excepciones no controladas en el ciclo de renderizado de React mediante `react-native-error-boundary`, permitiendo al usuario restablecer la interfaz con el botón «REINTENTAR».* |
+
 ### 🔍 Evidencias de Depuración y Rendimiento (DevTools & Profiler)
 
 | Árbol de Navegación (`React Navigation`) | Inspección de Caché y Persistencia (`MMKV Storage`) |
@@ -359,7 +363,9 @@ A continuación se detalla por qué se eligió cada librería y el valor técnic
 
 #### `react-native-error-boundary`
 
-- **¿Por que es necesaria?**: Captura excepciones no controladas de JavaScript dentro del ciclo de renderizado de componentes React.
+- **¿Por qué es necesaria?**: Captura excepciones no controladas de JavaScript dentro del ciclo de renderizado de componentes React, impidiendo el cierre inesperado (*crash*) del proceso.
+- **Componente de Recuperación ([`FallbackUI.tsx`](./src/presentation/components/FallbackUI.tsx))**: En caso de error, sustituye la pantalla rota por una interfaz amigable con opción de reinicio mediante el botón «REINTENTAR» y diagnóstico técnico en modo desarrollo.
+- **Evidencia Visual**: Captura del estado capturado en [`img-doc/bundle.png`](./img-doc/bundle.png).
 
 #### `react-native-exception-handler`
 
