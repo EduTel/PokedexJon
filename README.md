@@ -4,6 +4,14 @@ Aplicación móvil de Pokédex construida con **React Native (0.87.1)** y **Reac
 
 ---
 
+## ⚡ Demostración en Vivo e Identidad Visual
+
+| 🚀 Desplazamiento Ultrarrápido y Carga Inmediata | 📱 Ícono de la App en el Dispositivo |
+| :---: | :---: |
+| <img src="./img-doc/fastloadimages.gif" width="300" alt="Scroll ultra rápido y carga inmediata de imágenes" /><br/>*Listado de Pokémon con **LegendList**: desplazamiento a 60/120 FPS sin bloqueos y carga prácticamente inmediata de imágenes optimizadas.* | <img src="./img-doc/app_icon.png" width="300" alt="Ícono de la aplicación en el launcher" /><br/>*Ícono personalizado de la Pokédex instalado en el launcher del dispositivo.* |
+
+---
+
 ## 📸 Capturas de Pantalla (Screenshots)
 
 ### 📱 Vistas Principales (iOS vs Android Móvil)
