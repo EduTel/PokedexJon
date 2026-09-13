@@ -9,7 +9,9 @@ interface PokemonCardProps {
   onPress: (id: number, name: string) => void;
 }
 
-export const POKEMON_CARD_HEIGHT = 110;
+export const POKEMON_CARD_VISUAL_HEIGHT = 98; // 74 (image) + 24 (padding)
+export const POKEMON_CARD_GAP = 12; // Separación entre tarjetas
+export const POKEMON_CARD_HEIGHT = POKEMON_CARD_VISUAL_HEIGHT + POKEMON_CARD_GAP; // 110
 
 export const PokemonCard = React.memo(
   ({ pokemon, onPress }: PokemonCardProps) => {
@@ -71,7 +73,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     backgroundColor: colors.surface,
     borderRadius: 12,
-    overflow: 'hidden',
   },
   cardPressed: {
     opacity: 0.7,

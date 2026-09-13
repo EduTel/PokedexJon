@@ -97,9 +97,9 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
         data={pokemonList}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        estimatedItemSize={70}
+        estimatedItemSize={POKEMON_CARD_HEIGHT}
         getFixedItemSize={getFixedItemSize}
-        drawDistance={1200}
+        drawDistance={400}
         estimatedHeaderSize={68}
         maintainVisibleContentPosition={true}
         recycleItems={false}
