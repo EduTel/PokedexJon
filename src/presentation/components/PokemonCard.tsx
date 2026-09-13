@@ -2,46 +2,55 @@ import { StyleSheet, Image, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import { Pokemon } from '@/domain/models/pokemon.model';
 import { colors } from '@/presentation/theme/colors';
+import React from 'react';
 
 interface PokemonCardProps {
   pokemon: Pokemon;
-  onPress: () => void;
+  onPress: (id: number, name: string) => void;
 }
 
-export const PokemonCard = ({ pokemon, onPress }: PokemonCardProps) => {
-  const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
+export const POKEMON_CARD_HEIGHT = 110;
 
-  return (
-    <Card
-      style={styles.card}
-      mode="elevated"
-      elevation={2}
-      onPress={onPress}
-      testID={`pokemon-card-${pokemon.id}`}
-      accessibilityRole="button"
-      accessibilityLabel={`${pokemon.name}, número ${formattedId}`}
-      accessibilityHint="Toca dos veces para ver los detalles de este Pokémon"
-    >
-      <View style={styles.content}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: pokemon.imageUrl }}
-            style={styles.image}
-            resizeMode="contain"
-          />
+export const PokemonCard = React.memo(
+  ({ pokemon, onPress }: PokemonCardProps) => {
+    const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
+
+    const handlePress = () => {
+      onPress(pokemon.id, pokemon.name);
+    };
+
+    return (
+      <Card
+        style={styles.card}
+        mode="elevated"
+        elevation={2}
+        onPress={handlePress}
+        testID={`pokemon-card-${pokemon.id}`}
+        accessibilityRole="button"
+        accessibilityLabel={`${pokemon.name}, número ${formattedId}`}
+        accessibilityHint="Toca dos veces para ver los detalles de este Pokémon"
+      >
+        <View style={styles.content}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri: pokemon.imageUrl }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.info}>
+            <Text variant="labelSmall" style={styles.id}>
+              {formattedId}
+            </Text>
+            <Text variant="titleMedium" style={styles.name} numberOfLines={1}>
+              {pokemon.name}
+            </Text>
+          </View>
         </View>
-        <View style={styles.info}>
-          <Text variant="labelSmall" style={styles.id}>
-            {formattedId}
-          </Text>
-          <Text variant="titleMedium" style={styles.name} numberOfLines={1}>
-            {pokemon.name}
-          </Text>
-        </View>
-      </View>
-    </Card>
-  );
-};
+      </Card>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   card: {

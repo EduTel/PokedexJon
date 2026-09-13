@@ -4,7 +4,7 @@ import { LegendList } from '@legendapp/list/react-native';
 import { HomeScreenProps } from '@core/types/navigation.types';
 import { Pokemon } from '@domain/models/pokemon.model';
 import { usePokemonList } from '@hooks/usePokemonList';
-import { PokemonCard } from '@components/PokemonCard';
+import { PokemonCard, POKEMON_CARD_HEIGHT } from '@components/PokemonCard';
 import { PokemonListSkeleton } from '@components/PokemonCardSkeleton';
 import { OfflineBanner } from '@components/OfflineBanner';
 import { ErrorState } from '@components/ErrorState';
@@ -14,6 +14,7 @@ import { HomeScreenFooter } from './components/HomeScreenFooter';
 import { styles } from './HomeScreen.styles';
 
 const keyExtractor = (item: Pokemon): string => item.id.toString();
+const getFixedItemSize = (): number => POKEMON_CARD_HEIGHT;
 
 export const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const {
@@ -31,19 +32,21 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
     loadMore,
   } = usePokemonList();
 
+  const handleSelectPokemon = useCallback(
+    (id: number, name: string) => {
+      navigation.navigate('Detail', {
+        pokemonId: id,
+        pokemonName: name,
+      });
+    },
+    [navigation],
+  );
+
   const renderItem = useCallback(
     ({ item }: { item: Pokemon }) => (
-      <PokemonCard
-        pokemon={item}
-        onPress={() =>
-          navigation.navigate('Detail', {
-            pokemonId: item.id,
-            pokemonName: item.name,
-          })
-        }
-      />
+      <PokemonCard pokemon={item} onPress={handleSelectPokemon} />
     ),
-    [navigation],
+    [handleSelectPokemon],
   );
 
   if (isLoading) {
@@ -76,7 +79,11 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
         data={pokemonList}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        estimatedItemSize={92}
+        estimatedItemSize={88}
+        getFixedItemSize={getFixedItemSize}
+        drawDistance={1200}
+        estimatedHeaderSize={68}
+        maintainVisibleContentPosition={true}
         recycleItems={true}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={

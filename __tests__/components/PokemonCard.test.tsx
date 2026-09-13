@@ -29,5 +29,6 @@ describe('PokemonCard', () => {
     fireEvent.press(card);
 
     expect(handlePress).toHaveBeenCalledTimes(1);
+    expect(handlePress).toHaveBeenCalledWith(25, 'pikachu');
   });
 });
