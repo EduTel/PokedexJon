@@ -79,12 +79,12 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
         data={pokemonList}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        estimatedItemSize={88}
+        estimatedItemSize={70}
         getFixedItemSize={getFixedItemSize}
         drawDistance={1200}
         estimatedHeaderSize={68}
         maintainVisibleContentPosition={true}
-        recycleItems={true}
+        recycleItems={false}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <HomeScreenHeader totalCount={pokemonList.length} />

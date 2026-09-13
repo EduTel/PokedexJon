@@ -21,6 +21,15 @@ export const styles = StyleSheet.create({
     width: 180,
     height: 180,
     marginVertical: 8,
+    alignSelf: 'center',
+  },
+  fallbackContainer: {
+    width: '100%',
+    height: 180,
+    marginVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   sliderContainer: {
     width: '100%',

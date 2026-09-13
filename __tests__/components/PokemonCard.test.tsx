@@ -31,4 +31,19 @@ describe('PokemonCard', () => {
     expect(handlePress).toHaveBeenCalledTimes(1);
     expect(handlePress).toHaveBeenCalledWith(25, 'pikachu');
   });
+
+  it('debe renderizar correctamente con icono por defecto si no tiene imageUrl', async () => {
+    const pokemonWithoutImage = {
+      id: 999,
+      name: 'desconocido',
+      imageUrl: '',
+    };
+
+    const { getByText } = await RenderHelper(
+      <PokemonCard pokemon={pokemonWithoutImage} onPress={jest.fn()} />,
+    );
+
+    expect(getByText(/desconocido/i)).toBeTruthy();
+    expect(getByText('#999')).toBeTruthy();
+  });
 });

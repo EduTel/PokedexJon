@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
+import { Icon } from 'react-native-paper';
+import { colors } from '@/presentation/theme/colors';
 import { styles } from '../DetailScreen.styles';
 
 interface PokemonImageSliderProps {
@@ -18,7 +20,12 @@ interface PokemonImageSliderProps {
 export const PokemonImageSlider = React.memo(
   ({ images, pokemonName, slideWidth }: PokemonImageSliderProps) => {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
     const scrollViewRef = useRef<ScrollViewInstance>(null);
+
+    const handleImageError = (uri: string) => {
+      setFailedImages(prev => ({ ...prev, [uri]: true }));
+    };
 
     const scrollTo = useCallback(
       (index: number) => {
@@ -32,14 +39,23 @@ export const PokemonImageSlider = React.memo(
     );
 
     if (images.length <= 1) {
-      return (
+      const singleUri = images[0];
+      const isFailed = !singleUri || Boolean(failedImages[singleUri]);
+
+      return !isFailed && Boolean(singleUri) ? (
         <Image
-          source={{ uri: images[0] }}
+          source={{ uri: singleUri }}
           style={styles.image}
           resizeMode="contain"
           testID="pokemon-detail-image"
           accessibilityLabel={`Imagen de ${pokemonName}`}
+          fadeDuration={0}
+          onError={() => handleImageError(singleUri)}
         />
+      ) : (
+        <View style={styles.fallbackContainer} testID="pokemon-fallback-icon">
+          <Icon source="pokeball" size={100} color={colors.textSecondary} />
+        </View>
       );
     }
 
@@ -74,20 +90,32 @@ export const PokemonImageSlider = React.memo(
           }}
           scrollEventThrottle={16}
         >
-          {images.map((imgUri, index) => (
-            <View
-              key={`${imgUri}-${index}`}
-              style={[styles.slideItem, { width: slideWidth }]}
-            >
-              <Image
-                source={{ uri: imgUri }}
-                style={styles.image}
-                resizeMode="contain"
-                testID={`pokemon-slide-image-${index}`}
-                accessibilityLabel={`Imagen ${index + 1} de ${pokemonName}`}
-              />
-            </View>
-          ))}
+          {images.map((imgUri, index) => {
+            const isFailed = !imgUri || Boolean(failedImages[imgUri]);
+
+            return (
+              <View
+                key={`${imgUri}-${index}`}
+                style={[styles.slideItem, { width: slideWidth }]}
+              >
+                {!isFailed && Boolean(imgUri) ? (
+                  <Image
+                    source={{ uri: imgUri }}
+                    style={styles.image}
+                    resizeMode="contain"
+                    testID={`pokemon-slide-image-${index}`}
+                    accessibilityLabel={`Imagen ${index + 1} de ${pokemonName}`}
+                    fadeDuration={0}
+                    onError={() => handleImageError(imgUri)}
+                  />
+                ) : (
+                  <View style={styles.fallbackContainer} testID="pokemon-fallback-icon">
+                    <Icon source="pokeball" size={100} color={colors.textSecondary} />
+                  </View>
+                )}
+              </View>
+            );
+          })}
         </ScrollView>
 
         {activeImageIndex < images.length - 1 && (

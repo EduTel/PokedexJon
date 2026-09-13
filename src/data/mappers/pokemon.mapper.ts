@@ -5,6 +5,11 @@ import {
 import { Pokemon } from '@domain/models/pokemon.model';
 import { PokemonDetail } from '@domain/models/pokemon-detail.model';
 
+const GITHUB_RAW_BASE =
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/';
+const JSDELIVR_CDN_BASE =
+  'https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/';
+
 export class PokemonMapper {
   static extractIdFromUrl(url: string): number {
     const parts = url.split('/').filter(Boolean);
@@ -13,26 +18,45 @@ export class PokemonMapper {
     return isNaN(id) ? 0 : id;
   }
 
+  static toCdnUrl(url: string): string {
+    if (url.startsWith(GITHUB_RAW_BASE)) {
+      return url.replace(GITHUB_RAW_BASE, JSDELIVR_CDN_BASE);
+    }
+    return url;
+  }
+
+  static getOptimizedUrl(
+    url: string,
+    width: number = 150,
+    quality: number = 80,
+  ): string {
+    if (!url) return '';
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&q=${quality}&output=webp`;
+  }
+
   static getOfficialImgUrl(id: number): string {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+    return `${GITHUB_RAW_BASE}sprites/pokemon/other/official-artwork/${id}.png`;
   }
 
   static toDomain(dto: PokemonListItemDto): Pokemon {
     const id = this.extractIdFromUrl(dto.url);
+    const originalUrl = this.getOfficialImgUrl(id);
     return {
       id,
       name: dto.name,
-      imageUrl: this.getOfficialImgUrl(id), // agregamos url de la imagen del pokemon
+      imageUrl: this.getOptimizedUrl(originalUrl, 150, 80),
     };
   }
 
   static detailToDomain(dto: PokemonDetailResponseDto): PokemonDetail {
-    const fallbackImage = this.getOfficialImgUrl(dto.id);
+    const fallbackImage = this.toCdnUrl(this.getOfficialImgUrl(dto.id));
     /*only 2 img */
     const candidates = [
       dto.sprites.other?.['official-artwork']?.front_default,
       dto.sprites.other?.home?.front_default,
-    ].filter((url): url is string => Boolean(url && !url.endsWith('.svg')));
+    ]
+      .filter((url): url is string => Boolean(url && !url.endsWith('.svg')))
+      .map(url => this.toCdnUrl(url));
 
     const uniqueImages = Array.from(new Set(candidates));
     const images = uniqueImages.length > 0 ? uniqueImages : [fallbackImage];

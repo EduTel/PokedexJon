@@ -1,8 +1,8 @@
 import { StyleSheet, Image, View } from 'react-native';
-import { Card, Text } from 'react-native-paper';
+import { Card, Text, Icon } from 'react-native-paper';
 import { Pokemon } from '@/domain/models/pokemon.model';
 import { colors } from '@/presentation/theme/colors';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface PokemonCardProps {
   pokemon: Pokemon;
@@ -14,6 +14,9 @@ export const POKEMON_CARD_HEIGHT = 110;
 export const PokemonCard = React.memo(
   ({ pokemon, onPress }: PokemonCardProps) => {
     const formattedId = `#${String(pokemon.id).padStart(3, '0')}`;
+    const [hasImageError, setHasImageError] = useState(false);
+
+    const hasFailed = !pokemon.imageUrl || hasImageError;
 
     const handlePress = () => {
       onPress(pokemon.id, pokemon.name);
@@ -32,11 +35,21 @@ export const PokemonCard = React.memo(
       >
         <View style={styles.content}>
           <View style={styles.imageContainer}>
-            <Image
-              source={{ uri: pokemon.imageUrl }}
-              style={styles.image}
-              resizeMode="contain"
-            />
+            {!hasFailed ? (
+              <Image
+                source={{ uri: pokemon.imageUrl }}
+                style={styles.image}
+                resizeMode="contain"
+                fadeDuration={0}
+                onError={() => setHasImageError(true)}
+              />
+            ) : (
+              <Icon
+                source="pokeball"
+                size={38}
+                color={colors.textSecondary}
+              />
+            )}
           </View>
           <View style={styles.info}>
             <Text variant="labelSmall" style={styles.id}>
@@ -72,6 +85,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    overflow: 'hidden',
   },
   image: {
     width: 64,

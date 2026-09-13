@@ -369,7 +369,48 @@ Toda decisión de ingeniería de software implica evaluar beneficios frente a co
 | **Clean Architecture y Abstracción de Red (`IHttpClient`)** | Desacoplamiento estricto entre capas (`Domain`, `Data`, `Presentation`). Testeabilidad al 100% con mocks en Jest y facilidad para intercambiar `fetch` por `axios` sin tocar la UI ni la lógica de negocio. | Incrementa el número de archivos, interfaces y *boilerplate* inicial en comparación con consumir APIs directamente dentro de componentes o hooks de React. |
 | **Inversión de Dependencias (DIP) en Librerías Externas** | Se aplicó DIP rigurosamente en la capa de red crítica con `IHttpClient` (`FetchHttpClient`), aislando el consumo de APIs y garantizando 100% de testeabilidad. | Librerías utilitarias como `@react-native-community/netinfo` se consumen a través de hooks estándar (`useNetInfo`) sin una interfaz abstracta intermedia (`INetworkService`). Esto evitó sobre-ingeniería inicial para el alcance actual, asumiendo un acoplamiento directo que podría desacoplarse en una siguiente fase de arquitectura. |
 | **React Compiler vs State Colocation Manual** | `babel-plugin-react-compiler` automatiza la memorización de componentes y valores calculados sin ensuciar el código con `useMemo` y `useCallback` manuales. | Para interacciones de UI críticas de alta frecuencia (como el carrusel de imágenes en `DetailScreen`), el compilador no previene re-renders si el estado reside en el contenedor padre. Se requirió aplicar deliberadamente **State Colocation** (`PokemonImageSlider`) para aislar el estado y lograr 0 re-renderizados en los componentes inferiores. |
+| **`wsrv.nl` + `jsDelivr` vs GitHub Raw directo** | Reducción del **95.7% en peso de red** (~7 KB vs ~200 KB) con formato moderno **WebP**, dimensiones adaptadas (150px miniaturas / 400px Retina detalle) y caché global en Cloudflare Edge. Carga instantánea y mínimo consumo de batería y datos móviles. | Dependencia de red proxy de optimización. Se mitiga mediante entrega alternativa directa y soporte de fallbacks con iconos locales en caso de indisponibilidad. |
 | **Estrategia Offline-First (Caché TanStack Query + MMKV)** | Navegación instantánea sin bloqueos de red; el usuario siempre visualiza datos previamente consultados aun en modo avión. | Si la información remota de la PokeAPI cambia mientras el dispositivo está desconectado, el usuario ve datos cacheados (*stale*) hasta que se restablece la conexión y se dispara la revalidación en segundo plano. |
+
+---
+
+## ⚡ Optimización de Imágenes y Rendimiento de Red (Image CDN Benchmark)
+
+Para garantizar un scroll fluido a 60/120 FPS y una **aparición visual mucho más rápida de las imágenes** sin saturar el hilo principal ni los datos móviles del usuario, se implementó una estrategia de optimización de imágenes en dos capas en [`PokemonMapper`](./src/data/mappers/pokemon.mapper.ts):
+
+1. **CDN Global (jsDelivr)**: Desacopla la descarga de `raw.githubusercontent.com`, evitando límites de peticiones (*rate limits*) y latencias elevadas.
+2. **Image Proxy Optimizer (`wsrv.nl` respaldado por Cloudflare)**: Transforma las imágenes de la lista al vuelo a formato **WebP** y las redimensiona al tamaño exacto de visualización:
+   - **Miniaturas de Lista (`PokemonCard`)**: Convertidas a **WebP** y redimensionadas a **150 px** con calidad 80%. Esto reduce drásticamente el peso de ~200 KB a tan solo **~6-8 KB**, permitiendo que **las imágenes se vean mucho más rápido al hacer scroll**, eliminando retardos y parpadeos en pantalla.
+   - **Slider de Detalle (`PokemonImageSlider`)**: Entrega directa en alta definición desde **jsDelivr CDN** con calidad 100% original en PNG sin intermediarios.
+
+### 📊 Benchmark Real: GitHub Raw vs jsDelivr vs wsrv.nl WebP
+
+Prueba comparativa en tiempo real ejecutada con los primeros 10 Pokémon mediante el script [`scripts/compare-images.js`](./scripts/compare-images.js):
+
+| ID | Pokémon | GitHub Raw (Original) | jsDelivr CDN | wsrv.nl WebP (Optimizado) | Reducción de Peso |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| **#01** | Bulbasaur | 198.6 KB (325 ms) | 198.6 KB (206 ms) | **6.5 KB** (311 ms) | **-96.7%** |
+| **#02** | Ivysaur | 198.0 KB (195 ms) | 198.0 KB (70 ms) | **7.6 KB** (172 ms) | **-96.2%** |
+| **#03** | Venusaur | 181.7 KB (250 ms) | 181.7 KB (83 ms) | **7.0 KB** (83 ms) | **-96.1%** |
+| **#04** | Charmander | 134.6 KB (118 ms) | 134.6 KB (46 ms) | **7.0 KB** (47 ms) | **-94.8%** |
+| **#05** | Charmeleon | 127.3 KB (130 ms) | 127.3 KB (44 ms) | **7.5 KB** (48 ms) | **-94.1%** |
+| **#06** | Charizard | 141.2 KB (96 ms) | 141.2 KB (86 ms) | **8.7 KB** (97 ms) | **-93.8%** |
+| **#07** | Squirtle | 151.4 KB (62 ms) | 151.4 KB (115 ms) | **6.5 KB** (62 ms) | **-95.7%** |
+| **#08** | Wartortle | 175.5 KB (152 ms) | 175.5 KB (212 ms) | **7.4 KB** (44 ms) | **-95.8%** |
+| **#09** | Blastoise | 193.2 KB (183 ms) | 193.2 KB (53 ms) | **6.9 KB** (53 ms) | **-96.4%** |
+| **#10** | Caterpie | 170.3 KB (127 ms) | 170.3 KB (56 ms) | **7.0 KB** (57 ms) | **-95.9%** |
+
+#### 📈 Resumen del Benchmark
+- **Visualización inmediata en la lista**: Al pasar de 200 KB a solo **~6 KB con WebP**, el teléfono descarga y decodifica las imágenes al instante, haciendo que **las tarjetas carguen y muestren sus imágenes mucho más rápido** mientras el usuario navega la lista.
+- **Peso total de 10 imágenes (Original)**: `1,671.8 KB` (~1.67 MB)
+- **Peso total de 10 imágenes (Optimizado)**: `72.1 KB` (~0.07 MB)
+- **Ahorro total de transferencia**: **`-95.7%` de ancho de banda** (23 veces menos datos por pantalla)
+- **Latencias de entrega**: Descargas de **40 ms a 100 ms** en imágenes cacheadas en Cloudflare Edge.
+
+> 💡 **Para ejecutar y reproducir esta prueba**:
+> ```bash
+> node scripts/compare-images.js
+> ```
 
 ---
 
